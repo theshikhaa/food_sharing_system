@@ -27,6 +27,72 @@ const isRecipient = async (req, res, next) => {
     }
 };
 
+// Food request form page
+router.get('/request-food', isRecipient, async (req, res) => {
+    try {
+        res.render('recipient/request', {
+            user: req.user,
+            title: 'Request Food',
+            message: req.flash('message')
+        });
+    } catch (error) {
+        console.error('Error rendering request form:', error);
+        res.redirect('/error');
+    }
+});
+
+// Handle food request submission
+router.post('/request-food', isRecipient, async (req, res) => {
+    try {
+        const { foodType, quantity, preferredPickupTime, specialInstructions } = req.body;
+        
+        // Create new food request
+        const request = new Donation({
+            donorId: null, // Will be assigned when donor accepts
+            recipientId: req.user._id,
+            foodType,
+            quantity,
+            status: 'pending',
+            pickupTime: preferredPickupTime,
+            specialInstructions,
+            createdAt: new Date()
+        });
+
+        await request.save();
+        
+        req.flash('message', 'Food request submitted successfully!');
+        res.redirect('/recipient/my-requests');
+    } catch (error) {
+        console.error('Error creating food request:', error);
+        req.flash('message', 'Error submitting food request. Please try again.');
+        res.redirect('/recipient/request-food');
+    }
+});
+
+// Request a specific donation
+router.get('/request/donation/:id', isRecipient, async (req, res) => {
+    try {
+        const donationId = req.params.id;
+        const donation = await Donation.findById(donationId);
+        
+        if (!donation) {
+            return res.status(404).render('error', {
+                message: 'Donation not found'
+            });
+        }
+
+        // Save donation details to localStorage for the request form
+        localStorage.setItem(`userDonations_${donation.donor}`, JSON.stringify([donation]));
+        
+        res.redirect(`/recipient/request-food?foodId=${donationId}`);
+    } catch (error) {
+        console.error('Error loading donation:', error);
+        res.status(500).render('error', {
+            message: 'Error loading donation details'
+        });
+    }
+});
+
 // Available donations page
 router.get('/available-donations', isRecipient, async (req, res) => {
     try {

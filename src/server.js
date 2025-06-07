@@ -48,9 +48,13 @@ app.get('/recipient-dashboard', (req, res) => {
 const authController = require('./controllers/authController');
 const userController = require('./controllers/userController');
 const donorRoutes = require('./routes/donorRoutes');
+const recipientRoutes = require('./routes/recipientRoutes');
 
 // Mount donor routes
 app.use('/donor', donorRoutes);
+
+// Mount recipient routes
+app.use('/recipient', recipientRoutes);
 
 // Auth routes
 app.get('/register', (req, res) => {
