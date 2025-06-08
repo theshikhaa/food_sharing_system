@@ -4,19 +4,26 @@ const connectDB = async () => {
     try {
         await mongoose.connect(process.env.MONGODB_URI, {
             useNewUrlParser: true,
-            useUnifiedTopology: true
+            useUnifiedTopology: true,
+            serverSelectionTimeoutMS: 5000, // Increase timeout
+            socketTimeoutMS: 45000,
+            family: 4 // Use IPv4
         });
         
-        // Drop existing indexes to clean up any problematic ones
-        const collections = await mongoose.connection.db.collections();
-        for (let collection of collections) {
-            await collection.dropIndexes();
-        }
-        
         console.log('MongoDB Connected Successfully');
+        
+        // Add connection event handlers
+        mongoose.connection.on('error', (error) => {
+            console.error('MongoDB Connection Error:', error);
+        });
+        
+        mongoose.connection.on('disconnected', () => {
+            console.log('MongoDB disconnected');
+        });
     } catch (error) {
         console.error('MongoDB Connection Error:', error);
-        process.exit(1);
+        console.log('Retrying connection in 5 seconds...');
+        setTimeout(connectDB, 5000); // Retry connection
     }
 };
 

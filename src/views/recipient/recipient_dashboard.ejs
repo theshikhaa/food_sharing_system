@@ -109,7 +109,7 @@
                     <h1 class="text-[#1c140d] text-4xl font-black leading-tight tracking-[-0.033em]">Welcome back, <%= user.name %>! ✨</h1>
                     <span class="bg-[#f2800d] text-white px-3 py-1 rounded-full text-sm font-bold">🌟 Active Member</span>
                 </div>
-                <p class="text-[#9c7349] text-lg font-normal leading-normal mt-2">You've received 45 meals—thank you for being part of our community!</p>
+                <p class="text-[#9c7349] text-lg font-normal leading-normal mt-2">You've received <%= stats.mealsReceived %> meals—thank you for being part of our community!</p>
             </div>
 
             <!-- Stats Section -->
@@ -119,9 +119,9 @@
                         <span class="text-2xl">🍽️</span>
                         <h2 class="text-[#1c140d] text-lg font-bold">Meals Received</h2>
                     </div>
-                    <p class="text-[#f2800d] text-3xl font-black mb-2">45 meals</p>
+                    <p class="text-[#f2800d] text-3xl font-black mb-2"><%= stats.mealsReceived %> meals</p>
                     <div class="w-full bg-[#fcfaf8] rounded-full h-2">
-                        <div class="bg-[#f2800d] h-2 rounded-full" style="width: 45%"></div>
+                        <div class="bg-[#f2800d] h-2 rounded-full" style="width: <%= Math.min(stats.mealsReceived, 100) %>%"></div>
                     </div>
                     <p class="text-[#9c7349] text-sm mt-2">Keep up the great work! 🌟</p>
                 </div>
@@ -130,15 +130,17 @@
                         <span class="text-2xl">📦</span>
                         <h2 class="text-[#1c140d] text-lg font-bold">Active Requests</h2>
                     </div>
-                    <p class="text-[#f2800d] text-3xl font-black" data-stat="active-requests">0</p>
+                    <p class="text-[#f2800d] text-3xl font-black"><%= stats.activeRequests %></p>
                 </div>
                 <div class="bg-white p-6 rounded-xl border border-[#e8dbce] hover:border-[#f2800d] transition-colors">
                     <div class="flex items-center gap-2 mb-2">
                         <span class="text-2xl">❤️</span>
                         <h2 class="text-[#1c140d] text-lg font-bold">Saved Items</h2>
                     </div>
-                    <p class="text-[#f2800d] text-3xl font-black">5</p>
-                    <a href="/recipient/saved" class="mt-3 inline-block text-[#f2800d] hover:underline">View all saved items →</a>
+                    <p class="text-[#f2800d] text-3xl font-black"><%= stats.savedItems %></p>
+                    <% if (stats.savedItems > 0) { %>
+                        <a href="/recipient/saved" class="mt-3 inline-block text-[#f2800d] hover:underline">View all saved items →</a>
+                    <% } %>
                 </div>
             </div>
 
@@ -159,31 +161,30 @@
             <div class="bg-white p-6 rounded-xl border border-[#e8dbce] mb-8">
                 <h2 class="text-[#1c140d] text-xl font-bold mb-4">Available Food Near You</h2>
                 <div id="available-food-container" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <!-- Food listings will be loaded dynamically here -->
-                    
-                    <!-- Loading placeholder -->
-                    <div class="animate-pulse p-4 border border-[#e8dbce] rounded-lg">
-                        <div class="h-6 bg-gray-200 rounded w-3/4 mb-2"></div>
-                        <div class="h-4 bg-gray-200 rounded w-1/2 mb-4"></div>
-                        <div class="h-4 bg-gray-200 rounded w-full mb-4"></div>
-                        <div class="h-4 bg-gray-200 rounded w-3/4 mb-6"></div>
-                        <div class="h-10 bg-gray-200 rounded w-full"></div>
-                    </div>
-                    <div class="animate-pulse p-4 border border-[#e8dbce] rounded-lg">
-                        <div class="h-6 bg-gray-200 rounded w-3/4 mb-2"></div>
-                        <div class="h-4 bg-gray-200 rounded w-1/2 mb-4"></div>
-                        <div class="h-4 bg-gray-200 rounded w-full mb-4"></div>
-                        <div class="h-4 bg-gray-200 rounded w-3/4 mb-6"></div>
-                        <div class="h-10 bg-gray-200 rounded w-full"></div>
-                    </div>
-                </div>
-                
-                <!-- Empty state message (hidden by default) -->
-                <div id="no-food-message" class="hidden bg-[#fcfaf8] p-6 rounded-lg text-center">
-                    <p class="text-[#9c7349] mb-4">There are no food donations available right now.</p>
-                    <a href="/recipient/browse" class="px-4 py-2 bg-[#f2800d] text-white rounded-full font-bold hover:bg-[#e67600] transition-colors inline-block">
-                        Browse All Foods
-                    </a>
+                    <% if (availableFood && availableFood.length > 0) { %>
+                        <% availableFood.forEach(function(food) { %>
+                            <div class="p-4 border border-[#e8dbce] rounded-lg">
+                                <h3 class="text-[#1c140d] text-lg font-bold mb-2"><%= food.title %></h3>
+                                <p class="text-[#9c7349] mb-2"><%= food.location %></p>
+                                <p class="text-[#1c140d] mb-4"><%= food.description %></p>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-[#9c7349]">
+                                        <% if (food.expiryTime) { %>
+                                            <%= Math.ceil((new Date(food.expiryTime) - new Date()) / (1000 * 60 * 60 * 24)) %> days left
+                                        <% } %>
+                                    </span>
+                                    <a href="/recipient/request?id=<%= food._id %>" class="bg-[#f2800d] text-white px-4 py-2 rounded-full font-bold hover:bg-[#e67600] transition-colors">Request</a>
+                                </div>
+                            </div>
+                        <% }); %>
+                    <% } else { %>
+                        <div class="col-span-2 bg-[#fcfaf8] p-6 rounded-lg text-center">
+                            <p class="text-[#9c7349] mb-4">There are no food donations available right now.</p>
+                            <a href="/recipient/browse" class="px-4 py-2 bg-[#f2800d] text-white rounded-full font-bold hover:bg-[#e67600] transition-colors inline-block">
+                                Browse All Foods
+                            </a>
+                        </div>
+                    <% } %>
                 </div>
             </div>
 

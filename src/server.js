@@ -8,6 +8,7 @@ const helmet = require('helmet');
 const cookieParser = require('cookie-parser');
 const jwt = require('jsonwebtoken');
 const User = require('./models/User');
+const Donation = require('./models/Donation');
 
 const app = express();
 
@@ -33,8 +34,6 @@ app.use(cookieParser());
 // Serve static files from the public directory
 app.use(express.static(path.join(__dirname, 'public')));
 
-
-
 // Serve views/error.css directly as /css/error.css
 app.get('/css/error.css', (req, res) => {
     res.sendFile(path.join(__dirname, 'views/error.css'));
@@ -45,18 +44,17 @@ app.get('/recipient-dashboard', (req, res) => {
     res.redirect('/recipient/dashboard');
 });
 
-// Database connection
-mongoose.connect(process.env.MONGODB_URI)
-    .then(() => console.log('Connected to MongoDB'))
-    .catch((err) => console.error('MongoDB connection error:', err));
-
 // Import routes
 const authController = require('./controllers/authController');
 const userController = require('./controllers/userController');
 const donorRoutes = require('./routes/donorRoutes');
+const recipientRoutes = require('./routes/recipientRoutes');
 
 // Mount donor routes
 app.use('/donor', donorRoutes);
+
+// Mount recipient routes
+app.use('/recipient', recipientRoutes);
 
 // Auth routes
 app.get('/register', (req, res) => {
@@ -147,9 +145,38 @@ app.get('/recipient/dashboard', async (req, res) => {
             return res.redirect('/section');
         }
 
+        // Get active requests count
+        const activeRequests = await Donation.countDocuments({
+            recipient: user._id,
+            status: 'accepted'
+        });
+
+        // Get saved items count
+        const savedItems = await Donation.countDocuments({
+            savedBy: user._id
+        });
+
+        // Get total meals received (completed donations)
+        const mealsReceived = await Donation.countDocuments({
+            recipient: user._id,
+            status: 'completed'
+        });
+
+        // Get available food near the user
+        const availableFood = await Donation.find({
+            status: 'pending',
+            // Add location-based filtering here if you have location data
+        }).limit(4).sort({ createdAt: -1 });
+
         res.render('recipient/recipient_dashboard', {
             title: 'Recipient Dashboard - ShareBites',
-            user
+            user,
+            stats: {
+                mealsReceived,
+                activeRequests,
+                savedItems
+            },
+            availableFood
         });
     } catch (error) {
         console.error('Recipient dashboard error:', error);
@@ -197,9 +224,16 @@ app.get('/recipient/saved', async (req, res) => {
             return res.redirect('/section');
         }
 
+        // Get saved items for this user
+        const savedItems = await Donation.find({
+            savedBy: user._id,
+            status: 'pending' // Only show items that are still available
+        }).sort({ createdAt: -1 });
+
         res.render('recipient/saved', {
             title: 'Saved Items - ShareBites',
-            user
+            user,
+            savedItems
         });
     } catch (error) {
         console.error('Saved items error:', error);
@@ -222,9 +256,30 @@ app.get('/recipient/profile', async (req, res) => {
             return res.redirect('/section');
         }
 
+        // Get total meals received (completed donations)
+        const mealsReceived = await Donation.countDocuments({
+            recipient: user._id,
+            status: 'completed'
+        });
+
+        // Calculate member since date
+        const memberSince = user.createdAt ? new Date(user.createdAt) : new Date();
+        const memberSinceFormatted = memberSince.toLocaleDateString('en-US', { 
+            month: 'long',
+            year: 'numeric'
+        });
+
+        // For new users, reliability rating starts at null
+        const reliabilityRating = user.reliabilityRating || 'New Member';
+
         res.render('recipient/profile', {
             title: 'Profile - ShareBites',
-            user
+            user,
+            stats: {
+                mealsReceived,
+                memberSince: memberSinceFormatted,
+                reliabilityRating
+            }
         });
     } catch (error) {
         console.error('Profile error:', error);
@@ -295,6 +350,35 @@ app.post('/recipient/update-notifications', async (req, res) => {
     } catch (error) {
         console.error('Notification update error:', error);
         res.redirect('/recipient/profile?error=true');
+    }
+});
+
+// Handle unsaving items
+app.post('/recipient/unsave/:itemId', async (req, res) => {
+    try {
+        const token = req.cookies.jwt;
+        if (!token) {
+            return res.status(401).json({ message: 'Not authenticated' });
+        }
+
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const user = await User.findById(decoded.userId);
+
+        if (!user || user.userType !== 'recipient') {
+            return res.status(403).json({ message: 'Not authorized' });
+        }
+
+        const itemId = req.params.itemId;
+        
+        // Remove the user's ID from the savedBy array of the donation
+        await Donation.findByIdAndUpdate(itemId, {
+            $pull: { savedBy: user._id }
+        });
+
+        res.json({ message: 'Item unsaved successfully' });
+    } catch (error) {
+        console.error('Error unsaving item:', error);
+        res.status(500).json({ message: 'Error unsaving item' });
     }
 });
 

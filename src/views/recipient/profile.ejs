@@ -102,21 +102,25 @@
                                 <span class="text-xl">🍽️</span>
                                 <p class="text-[#1c140d] font-medium">Meals Received</p>
                             </div>
-                            <p class="text-[#f2800d] text-2xl font-bold">45</p>
+                            <p class="text-[#f2800d] text-2xl font-bold"><%= stats.mealsReceived %></p>
                         </div>
                         <div class="p-4 bg-[#fcfaf8] rounded-lg">
                             <div class="flex items-center gap-2 mb-2">
                                 <span class="text-xl">📅</span>
                                 <p class="text-[#1c140d] font-medium">Member Since</p>
                             </div>
-                            <p class="text-[#f2800d] text-2xl font-bold">March 2023</p>
+                            <p class="text-[#f2800d] text-2xl font-bold"><%= stats.memberSince %></p>
                         </div>
                         <div class="p-4 bg-[#fcfaf8] rounded-lg">
                             <div class="flex items-center gap-2 mb-2">
                                 <span class="text-xl">⭐</span>
                                 <p class="text-[#1c140d] font-medium">Reliability Rating</p>
                             </div>
-                            <p class="text-[#f2800d] text-2xl font-bold">4.9/5.0</p>
+                            <% if (stats.reliabilityRating === 'New Member') { %>
+                                <p class="text-[#9c7349] text-lg">New Member</p>
+                            <% } else { %>
+                                <p class="text-[#f2800d] text-2xl font-bold"><%= stats.reliabilityRating %>/5.0</p>
+                            <% } %>
                         </div>
                     </div>
                 </div>

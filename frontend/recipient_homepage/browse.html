@@ -12,6 +12,19 @@
             font-family: Epilogue, "Noto Sans", sans-serif;
             background-color: #fcfaf8;
         }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+        }
+        .modal.active {
+            display: flex;
+        }
     </style>
 </head>
 <body>
@@ -108,7 +121,7 @@
                         <span class="text-[#f2800d]">⏰ 2 hours left</span>
                         <span class="text-[#9c7349]">• 2.5 km away</span>
                     </div>
-                    <button class="w-full px-4 py-3 bg-[#f2800d] text-white rounded-full font-bold hover:bg-[#e67600] transition-colors">
+                    <button onclick="openRequestForm('Fresh Vegetables', 'Local Market')" class="w-full px-4 py-3 bg-[#f2800d] text-white rounded-full font-bold hover:bg-[#e67600] transition-colors">
                         Request Food
                     </button>
                 </div>
@@ -219,7 +232,73 @@
                     <button class="px-4 py-2 border border-[#e8dbce] rounded-lg text-[#1c140d] hover:border-[#f2800d]">Next</button>
                 </div>
             </div>
+
+            <!-- Request Food Modal -->
+            <div id="requestModal" class="modal">
+                <div class="bg-white rounded-xl p-8 max-w-md w-full mx-auto my-auto">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-2xl font-bold text-[#1c140d]">Request Food</h2>
+                        <button onclick="closeRequestForm()" class="text-[#9c7349] hover:text-[#1c140d]">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                            </svg>
+                        </button>
+                    </div>
+                    <form id="requestForm" class="space-y-4">
+                        <div>
+                            <label class="block text-[#1c140d] font-medium mb-2">Food Item</label>
+                            <input type="text" id="foodItem" readonly class="w-full px-4 py-3 rounded-xl border border-[#e8dbce] bg-gray-50">
+                        </div>
+                        <div>
+                            <label class="block text-[#1c140d] font-medium mb-2">Provider</label>
+                            <input type="text" id="provider" readonly class="w-full px-4 py-3 rounded-xl border border-[#e8dbce] bg-gray-50">
+                        </div>
+                        <div>
+                            <label class="block text-[#1c140d] font-medium mb-2">Quantity Needed</label>
+                            <input type="number" min="1" required class="w-full px-4 py-3 rounded-xl border border-[#e8dbce] focus:border-[#f2800d] outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-[#1c140d] font-medium mb-2">Pickup Time</label>
+                            <input type="datetime-local" required class="w-full px-4 py-3 rounded-xl border border-[#e8dbce] focus:border-[#f2800d] outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-[#1c140d] font-medium mb-2">Additional Notes</label>
+                            <textarea class="w-full px-4 py-3 rounded-xl border border-[#e8dbce] focus:border-[#f2800d] outline-none" rows="3"></textarea>
+                        </div>
+                        <button type="submit" class="w-full px-4 py-3 bg-[#f2800d] text-white rounded-full font-bold hover:bg-[#e67600] transition-colors">
+                            Submit Request
+                        </button>
+                    </form>
+                </div>
+            </div>
         </div>
     </div>
+
+    <script>
+        function openRequestForm(foodItem, provider) {
+            document.getElementById('requestModal').classList.add('active');
+            document.getElementById('foodItem').value = foodItem;
+            document.getElementById('provider').value = provider;
+        }
+
+        function closeRequestForm() {
+            document.getElementById('requestModal').classList.remove('active');
+        }
+
+        // Close modal when clicking outside
+        document.getElementById('requestModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeRequestForm();
+            }
+        });
+
+        // Handle form submission
+        document.getElementById('requestForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            // Here you would typically send the form data to your backend
+            alert('Request submitted successfully!');
+            closeRequestForm();
+        });
+    </script>
 </body>
 </html> 
