@@ -38,7 +38,7 @@
           </div>
         </header>
         <div class="px-4 md:px-40 flex flex-1 justify-center items-center py-5">
-          <div class="layout-content-container flex flex-col w-[512px] max-w-[512px] py-5 flex-1">
+          <form class="layout-content-container flex flex-col w-[512px] max-w-[512px] py-5 flex-1" action="/login" method="POST">
             <div class="flex flex-wrap justify-center gap-3 p-4">
               <div class="flex flex-col gap-3 text-center">
                 <p class="text-[#1c140d] text-4xl font-black leading-tight tracking-[-0.033em]">Welcome back</p>
@@ -49,6 +49,7 @@
               <label class="flex flex-col min-w-40 flex-1">
                 <p class="text-[#1c140d] text-base font-medium leading-normal pb-2">Email</p>
                 <input
+                  name="email"
                   placeholder="Enter your email"
                   class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-xl text-[#1c140d] focus:outline-0 focus:ring-0 border border-[#e8dbce] bg-[#fcfaf8] focus:border-[#e8dbce] h-14 placeholder:text-[#9c7349] p-[15px] text-base font-normal leading-normal"
                   value=""
@@ -59,6 +60,7 @@
               <label class="flex flex-col min-w-40 flex-1">
                 <p class="text-[#1c140d] text-base font-medium leading-normal pb-2">Password</p>
                 <input
+                  name="password"
                   type="password"
                   placeholder="•••••••••••••••••••••••••"
                   class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-xl text-[#1c140d] focus:outline-0 focus:ring-0 border border-[#e8dbce] bg-[#fcfaf8] focus:border-[#e8dbce] h-14 placeholder:text-[#9c7349] p-[15px] text-base font-normal leading-normal"
@@ -72,6 +74,7 @@
               </div>
               <div class="flex px-4 py-3">
                 <button
+                  type="submit"
                   class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-full h-12 px-5 flex-1 bg-[#f2800d] text-[#1c140d] text-base font-bold leading-normal tracking-[0.015em]"
                 >
                   <span class="truncate">Log in</span>
@@ -81,7 +84,7 @@
                 Don't have an account? <a href="../signup/index.html" class="text-[#f2800d] hover:underline">Sign up</a>
               </div>
             </div>
-          </div>
+          </form>
         </div>
       </div>
     </div>

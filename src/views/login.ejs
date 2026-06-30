@@ -29,6 +29,9 @@
             
             <div class="login-container">
                 <div class="login-content">
+                    <% if (typeof error !== 'undefined' && error) { %>
+                        <div class="error-message"><%= error %></div>
+                    <% } %>
                     <% if (locals.registered) { %>
                         <div class="success-message">
                             Registration successful! Please login with your credentials.

@@ -40,9 +40,12 @@ exports.register = async (req, res) => {
         res.redirect('/login?registered=true');
     } catch (error) {
         console.error('Registration error:', error);
+        const message = error.name === 'ValidationError' && error.errors?.password
+            ? 'Password must be at least 6 characters long'
+            : error.message;
         res.status(400).render('register', {
             title: 'Register - ShareBites',
-            error: error.message
+            error: message
         });
     }
 };

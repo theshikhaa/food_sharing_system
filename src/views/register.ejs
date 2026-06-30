@@ -24,6 +24,9 @@
         <main>
             <div class="signup-container">
                 <div class="signup-content">
+                    <% if (typeof error !== 'undefined' && error) { %>
+                        <div class="error-message"><%= error %></div>
+                    <% } %>
                     <div class="signup-header">
                         <h1>Join the WeShareIt community</h1>
                         <p>We'll help you recover food and feed people in need.</p>
@@ -54,7 +57,7 @@
                         <div class="form-group">
                             <label>
                                 <p>Password</p>
-                                <input type="password" name="password" placeholder="•••••••••••••••••••••••••" required />
+                                <input type="password" name="password" placeholder="•••••••••••••••••••••••••" minlength="6" required />
                             </label>
                         </div>
 

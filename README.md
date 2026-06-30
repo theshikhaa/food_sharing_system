@@ -1,71 +1,60 @@
 # FoodShare
 
-A food sharing platform built with MongoDB, Express, and Node.js.
+FoodShare is a food-sharing web app built with Node.js, Express, MongoDB, and EJS. It lets users sign up, log in, choose a role, and then use the app as either a donor or a recipient.
 
-## Prerequisites
+## What It Does
 
-- Node.js (v18 or higher)
-- MongoDB
-- npm or yarn
+- User registration and login with JWT cookies
+- Role selection after login: donor or recipient
+- Donor dashboard, donation posting, donation history, requests, and profile pages
+- Recipient dashboard, browse page, saved items, request pages, and profile pages
+- MongoDB-backed user and donation data
+- Server-rendered pages with Express and EJS
+- Static prototype pages are also present in `frontend/`, but the working app is served from `src/server.js`
+
+## Tech Stack
+
+- Node.js
+- Express
+- MongoDB with Mongoose
+- EJS templates
+- JWT authentication
+- bcrypt for password hashing
 
 ## Setup
 
-1. Clone the repository:
-```bash
-git clone <repository-url>
-cd food_sharing_system
-```
-
-2. Install dependencies:
+1. Install dependencies:
 ```bash
 npm install
 ```
 
-3. Create a `.env` file in the root directory and add the following variables:
-```
+2. Create a `.env` file in the project root:
+```env
 PORT=3000
-MONGODB_URI=mongodb://localhost:27017/foodshare
+MONGODB_URI=your_mongodb_connection_string
 NODE_ENV=development
 JWT_SECRET=your_jwt_secret_key_here
+JWT_EXPIRES_IN=24h
 ```
 
-4. Start the development server:
+3. Start the app:
 ```bash
 npm run dev
 ```
 
-## Available Scripts
-
-- `npm start`: Start the production server
-- `npm run dev`: Start the development server with hot reload
-- `npm test`: Run tests
-
-## Project Structure
-
-```
-food_sharing_system/
-├── src/
-│   ├── server.js
-│   ├── models/
-│   ├── routes/
-│   ├── controllers/
-│   └── middleware/
-├── tests/
-├── .env
-├── .gitignore
-├── package.json
-└── README.md
+4. Open the app in your browser:
+```text
+http://localhost:3000
 ```
 
-## Deployment
+## Notes
 
-This project is deployment-friendly and can be deployed to various platforms like Heroku, DigitalOcean, or AWS. Make sure to:
+- Passwords must be at least 6 characters.
+- MongoDB Atlas connection strings should live in `.env`, not in the README.
+- The app expects a valid JWT secret and a working MongoDB connection before login and registration will work.
 
-1. Set up the environment variables in your deployment platform
-2. Configure your MongoDB connection string for production
-3. Set NODE_ENV to 'production'
-4. Use a process manager like PM2 in production
+## Scripts
 
-## License
-
-MIT
+- `npm run dev` starts the development server
+- `npm start` starts the app in production mode
+- `npm test` runs tests
